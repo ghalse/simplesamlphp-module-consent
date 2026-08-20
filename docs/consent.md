@@ -47,7 +47,7 @@ always be asked to give consent each time she logs in.
 
 ## Using storage
 
-The consent module is shipped with two storage options, Cookie and Database.
+The consent module is shipped with three storage options: Cookie, Database, and Redis.
 
 ### Using cookies as storage
 
@@ -60,7 +60,7 @@ Example:
 90 => [
     'class'                => 'consent:Consent',
     'identifyingAttribute' => 'uid',
-    'store'                => 'consent:Cookie', 
+    'store'                => 'consent:Cookie',
 ],
 ```
 
@@ -130,7 +130,7 @@ Example config using PostgreSQL database:
     'class' => 'consent:Consent',
     'identifyingAttribute' => 'uid',
     'store' => [
-        'consent:Database', 
+        'consent:Database',
         'dsn' => 'pgsql:host=sql.example.org;dbname=consent',
         'username' => 'simplesaml',
         'password' => 'sdfsdf',
@@ -145,12 +145,127 @@ Example config using MySQL database:
     'class' => 'consent:Consent',
     'identifyingAttribute' => 'uid',
     'store' => [
-        'consent:Database', 
+        'consent:Database',
         'dsn' => 'mysql:host=db.example.org;dbname=simplesaml',
         'username' => 'simplesaml',
         'password' => 'sdfsdf',
     ],
 ],
+```
+
+### Using Redis as storage
+
+In order to use the Redis storage backend, you need to configure the consent
+store to use `consent:Redis`.
+
+Example configuration:
+
+```php
+90 => [
+    'class' => 'consent:Consent',
+    'identifyingAttribute' => 'uid',
+    'store' => [
+        'consent:Redis',
+        'host' => 'redis.example.org',
+        'port' => 6379,
+        'database' => 0,
+        'prefix' => 'SimpleSAMLphp',
+        'password' => 'secret',
+    ],
+],
+```
+
+The Redis backend stores consent by user and destination in a Redis hash, and
+uses the same configuration conventions as the rest of SimpleSAMLphp Redis
+based components.
+
+The `consent:Redis` backend supports the following options derived from
+the base config:
+
+`host`
+:   Redis hostname. Optional. Defaults to `localhost`.
+
+`port`
+:   Redis TCP port. Optional. Defaults to `6379`.
+
+`database`
+:   Redis database number. Optional. Defaults to `0`.
+
+`prefix`
+:   Prefix prepended to all Redis keys. Optional. Defaults to
+    `SimpleSAMLphp`.
+
+`username`
+:   Redis username for ACL authentication. Optional.
+
+`password`
+:   Redis password. Optional.
+
+`tls`
+:   Enable TLS for Redis connections. Optional. Defaults to `false`.
+
+`insecure`
+:   Skip certificate validation when using TLS. Optional. Defaults to
+    `false`.
+
+`ca_certificate`
+:   Path to the CA certificate used for Redis TLS validation. Optional.
+
+`certificate`
+:   Path to the client certificate used for mutual TLS. Optional.
+
+`privatekey`
+:   Path to the private key used for mutual TLS. Optional.
+
+`sentinels`
+:   Array of Redis Sentinel endpoints. Optional.
+
+`mastergroup`
+:   Sentinel master group name. Optional. Defaults to `mymaster`.
+
+Local-only options:
+
+`lifetime`
+:   Consent lifetime in seconds. Optional. When set, the Redis consent key is
+    given an expiry using `EXPIRE` after each save. This option is local to the
+    consent module store configuration and is not read from global
+    `store.redis.*` settings.
+
+`inheritGlobal`
+:   Whether this store should inherit the global SimpleSAMLphp Redis
+    configuration (`store.redis.*`). Optional. Defaults to `true`.
+
+When a local Redis option is set in the module configuration, it always takes precedence; when it is not set and `inheritGlobal` is `true`, the store falls back to `store.redis.*` from global config, and if no global value exists (or if `inheritGlobal` is `false`) it falls back to the module default, so the effective order is `local > global > default` with inheritance enabled and `local > default` with inheritance disabled.
+
+Example using Sentinel-based Redis:
+
+```php
+90 => [
+    'class' => 'consent:Consent',
+    'identifyingAttribute' => 'uid',
+    'store' => [
+        'consent:Redis',
+        'inheritGlobal' => false,
+        'sentinels' => [
+            'tcp://redis-sentinel-1:26379',
+            'tcp://redis-sentinel-2:26379',
+        ],
+        'mastergroup' => 'mymaster',
+        'prefix' => 'consent_',
+    ],
+],
+```
+
+The global Redis configuration can also be used directly for compatibility with
+other SimpleSAMLphp Redis integrations:
+
+```php
+'store.redis.host' => 'redis.example.org',
+'store.redis.port' => 6379,
+'store.redis.database' => 0,
+'store.redis.prefix' => 'SimpleSAMLphp',
+'store.redis.sentinels' => ['tcp://redis-sentinel-1:26379'],
+'store.redis.mastergroup' => 'mymaster',
 ```
 
 -------
