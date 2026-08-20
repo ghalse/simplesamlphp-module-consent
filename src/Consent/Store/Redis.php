@@ -10,7 +10,6 @@ use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Logger;
 
-use function class_exists;
 use function count;
 
 /**
@@ -270,7 +269,7 @@ class Redis extends \SimpleSAML\Module\consent\Store
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Logger::error('consent:Redis - Failed to save consent: ' . $e->getMessage());
             return false;
         }

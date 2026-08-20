@@ -48,6 +48,9 @@
         "predis/predis": "~3.3",
         "simplesamlphp/simplesamlphp-test-framework": "^1.11"
     },
+    "suggest": {
+        "predis/predis": "Needed if a Redis server is used to store session information"
+    },
     "support": {
         "issues": "https://github.com/simplesamlphp/simplesamlphp-module-consent/issues",
         "source": "https://github.com/simplesamlphp/simplesamlphp-module-consent"

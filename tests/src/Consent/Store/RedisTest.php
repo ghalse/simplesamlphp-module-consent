@@ -32,7 +32,8 @@ final class RedisTest extends ClearStateTestCase
         /*
          * Create a mock Redis client that simulates the behavior of a Redis server.
          * This allows us to test the Redis store without needing an actual Redis server.
-         * The @method annotations are directly from https://github.com/predis/predis/blob/v3.6.0/src/ClientInterface.php
+         * The @method annotations are directly from
+         *   https://github.com/predis/predis/blob/v3.6.0/src/ClientInterface.php
          */
         $this->client = new class () extends Client {
             /** @var array<string, mixed> */
