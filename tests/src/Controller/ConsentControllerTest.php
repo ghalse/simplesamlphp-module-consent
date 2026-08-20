@@ -51,6 +51,7 @@ final class ConsentControllerTest extends TestCase
             '[ARRAY]',
             'simplesaml',
         );
+        Configuration::setPreLoadedConfig(self::$config, 'config.php');
 
         self::$session = Session::getSessionFromRequest();
 
